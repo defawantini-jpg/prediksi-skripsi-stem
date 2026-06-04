@@ -1,52 +1,40 @@
 import streamlit as st
 import pandas as pd
-
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
 
-# =====================
-# LOAD DATASET
-# =====================
+# LOAD DATA
 df = pd.read_excel("DATASET JUDUL SKRIPSI fiks.xlsx")
 
-# Ambil kolom pertama = judul
-# Ambil kolom kedua = label
 X = df.iloc[:, 0].astype(str)
 y = df.iloc[:, 1]
 
-# =====================
-# TRAIN MODEL
-# =====================
+# TF-IDF
 vectorizer = TfidfVectorizer()
-
 X_tfidf = vectorizer.fit_transform(X)
 
-model = LogisticRegression(max_iter=1000)
+# ANN (INI REAL ANN)
+model = MLPClassifier(
+    hidden_layer_sizes=(50, 25),
+    activation='relu',
+    max_iter=500,
+    random_state=42
+)
+
 model.fit(X_tfidf, y)
 
-# =====================
-# STREAMLIT
-# =====================
-st.title("Prediksi Kategori Judul Skripsi")
+# STREAMLIT UI
+st.title("Prediksi Judul Skripsi")
 
-st.write("Masukkan judul skripsi untuk mengetahui kategori STEM atau NON STEM")
-
-judul = st.text_area("Masukkan Judul Skripsi")
+judul = st.text_area("Masukkan Judul")
 
 if st.button("Prediksi"):
-
     if judul.strip() == "":
-        st.warning("Silakan masukkan judul skripsi")
+        st.warning("Isi dulu judulnya")
     else:
+        pred = model.predict(vectorizer.transform([judul]))[0]
 
-        data = vectorizer.transform([judul])
-
-        hasil = model.predict(data)[0]
-
-        st.subheader("Hasil Prediksi")
-
-        # SESUAIKAN LABEL DI DATASET
-        if hasil == 0:
+        if pred == 1 or pred == "STEM":
             st.success("STEM")
         else:
             st.error("NON STEM")
