@@ -1,4 +1,6 @@
+tensorflow
+numpy
+scikit-learn
 streamlit
 pandas
-scikit-learn
 openpyxl
